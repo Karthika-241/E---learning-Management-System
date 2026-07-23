@@ -41,9 +41,6 @@ export default function Home() {
             </p>
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight">
               Learn what you need,{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-ember to-amber">
-                {currentUser ? currentUser.name.split(" ")[0] : "friend"}
-              </span>
               <br />— skip the paperwork.
             </h1>
             <p className="mt-5 text-white/60 text-lg max-w-lg leading-relaxed">
