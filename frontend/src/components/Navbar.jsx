@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { path: "/courses", label: "Explore" },
   { path: "/my-learning", label: "My Learning" },
   { path: "/admin", label: "Admin" },
+  { path: "/student-auth", label: "Login / Signup" },
 ];
 
 export default function Navbar() {

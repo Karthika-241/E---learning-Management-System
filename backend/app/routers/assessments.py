@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/courses", tags=["assessments"])
 
 @router.get("/{course_id}/questions/all", response_model=List[schemas.QuestionAdminOut])
 def get_all_questions(course_id: int, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.get(models.Course, course_id)
     if not course:
         raise HTTPException(404, "Course not found")
     return db.query(models.Question).filter(
@@ -23,7 +23,7 @@ def get_all_questions(course_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{course_id}/questions", response_model=schemas.QuestionAdminOut)
 def create_question(course_id: int, payload: schemas.QuestionCreate, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.get(models.Course, course_id)
     if not course:
         raise HTTPException(404, "Course not found")
     question = models.Question(course_id=course_id, **payload.model_dump())
@@ -63,7 +63,7 @@ def delete_question(course_id: int, question_id: int, db: Session = Depends(get_
 
 @router.get("/{course_id}/questions", response_model=list[schemas.QuestionOut])
 def get_questions(course_id: int, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.get(models.Course, course_id)
     if not course:
         raise HTTPException(404, "Course not found")
 
@@ -82,11 +82,11 @@ def get_questions(course_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{course_id}/quiz", response_model=schemas.QuizResult)
 def submit_quiz(course_id: int, payload: schemas.QuizSubmit, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.get(models.Course, course_id)
     if not course:
         raise HTTPException(404, "Course not found")
 
-    user = db.query(models.User).get(payload.user_id)
+    user = db.get(models.User, payload.user_id)
     if not user:
         raise HTTPException(404, "User not found")
 

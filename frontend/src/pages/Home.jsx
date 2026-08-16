@@ -69,7 +69,7 @@ export default function Home() {
 
           {categories.length > 0 && (
             <div className="pt-2 animate-fade-in-delay-2">
-              <CategoryStrip categories={categories} />
+              <CategoryStrip categories={categories} variant="dark" />
             </div>
           )}
         </div>

@@ -1,13 +1,15 @@
 import axios from "axios";
 
-export const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
+export const API_BASE = import.meta.env.VITE_API_BASE || "https://learnlyapp.up.railway.app";
 
 const client = axios.create({ baseURL: API_BASE });
 
 export const api = {
-  // ---------- users (identity switcher, not auth) ----------
+  // ---------- users (identity switcher and auth) ----------
   listUsers: () => client.get("/api/users").then((r) => r.data),
   createUser: (payload) => client.post("/api/users", payload).then((r) => r.data),
+  signup: (payload) => client.post("/api/users/signup", payload).then((r) => r.data),
+  login: (payload) => client.post("/api/users/login", payload).then((r) => r.data),
 
   // ---------- categories ----------
   listCategories: () => client.get("/api/categories").then((r) => r.data),

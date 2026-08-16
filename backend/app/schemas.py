@@ -10,6 +10,7 @@ class UserOut(BaseModel):
     role: str
     headline: str
     avatar_emoji: str
+    email: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -20,6 +21,13 @@ class UserCreate(BaseModel):
     role: str = "student"
     headline: str = ""
     avatar_emoji: str = "🙂"
+    email: Optional[str] = None
+    password: Optional[str] = None
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
 
 # ---------- Categories ----------

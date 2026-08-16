@@ -54,14 +54,23 @@ def list_courses(
     return cards
 
 
+@router.get("/instructor/{instructor_id}", response_model=list[schemas.CourseCard])
+def courses_by_instructor(instructor_id: int, db: Session = Depends(get_db)):
+    courses = _course_query(db).filter(models.Course.instructor_id == instructor_id).all()
+    return [crud.to_course_card(db, c) for c in courses]
+
+
 @router.get("/{course_id}", response_model=schemas.CourseDetail)
 def get_course(course_id: int, viewer_id: Optional[int] = None, db: Session = Depends(get_db)):
-    course = db.query(models.Course).options(
-        joinedload(models.Course.category),
-        joinedload(models.Course.instructor),
-        joinedload(models.Course.sections).joinedload(models.Section.lectures),
-        joinedload(models.Course.reviews).joinedload(models.Review.user),
-    ).get(course_id)
+    course = db.get(
+        models.Course, course_id,
+        options=[
+            joinedload(models.Course.category),
+            joinedload(models.Course.instructor),
+            joinedload(models.Course.sections).joinedload(models.Section.lectures),
+            joinedload(models.Course.reviews).joinedload(models.Review.user),
+        ],
+    )
     if not course:
         raise HTTPException(404, "Course not found")
     return crud.to_course_detail(db, course, viewer_id)
@@ -71,10 +80,10 @@ def get_course(course_id: int, viewer_id: Optional[int] = None, db: Session = De
 def create_course(payload: schemas.CourseCreate, db: Session = Depends(get_db)):
     """Instructor 'publish a course' flow - everything in one call:
     course + sections + lectures, no drafts/review queue."""
-    instructor = db.query(models.User).get(payload.instructor_id)
+    instructor = db.get(models.User, payload.instructor_id)
     if not instructor or instructor.role != "instructor":
         raise HTTPException(400, "instructor_id must belong to a user with role=instructor")
-    if not db.query(models.Category).get(payload.category_id):
+    if not db.get(models.Category, payload.category_id):
         raise HTTPException(400, "category_id does not exist")
 
     course = models.Course(
@@ -114,9 +123,10 @@ def create_course(payload: schemas.CourseCreate, db: Session = Depends(get_db)):
 
 @router.put("/{course_id}", response_model=schemas.CourseDetail)
 def update_course(course_id: int, payload: schemas.CourseUpdate, db: Session = Depends(get_db)):
-    course = db.query(models.Course).options(
-        joinedload(models.Course.sections).joinedload(models.Section.lectures),
-    ).get(course_id)
+    course = db.get(
+        models.Course, course_id,
+        options=[joinedload(models.Course.sections).joinedload(models.Section.lectures)],
+    )
     if not course:
         raise HTTPException(404, "Course not found")
 
@@ -133,7 +143,7 @@ def update_course(course_id: int, payload: schemas.CourseUpdate, db: Session = D
     if payload.thumbnail_seed is not None:
         course.thumbnail_seed = payload.thumbnail_seed
     if payload.category_id is not None:
-        if not db.query(models.Category).get(payload.category_id):
+        if not db.get(models.Category, payload.category_id):
             raise HTTPException(400, "category_id does not exist")
         course.category_id = payload.category_id
 
@@ -156,26 +166,23 @@ def update_course(course_id: int, payload: schemas.CourseUpdate, db: Session = D
 
     db.commit()
 
-    course = db.query(models.Course).options(
-        joinedload(models.Course.category),
-        joinedload(models.Course.instructor),
-        joinedload(models.Course.sections).joinedload(models.Section.lectures),
-        joinedload(models.Course.reviews).joinedload(models.Review.user),
-    ).get(course_id)
+    course = db.get(
+        models.Course, course_id,
+        options=[
+            joinedload(models.Course.category),
+            joinedload(models.Course.instructor),
+            joinedload(models.Course.sections).joinedload(models.Section.lectures),
+            joinedload(models.Course.reviews).joinedload(models.Review.user),
+        ],
+    )
     return crud.to_course_detail(db, course, None)
 
 
 @router.delete("/{course_id}")
 def delete_course(course_id: int, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.get(models.Course, course_id)
     if not course:
         raise HTTPException(404, "Course not found")
     db.delete(course)
     db.commit()
     return {"ok": True, "message": "Course deleted"}
-
-
-@router.get("/instructor/{instructor_id}", response_model=list[schemas.CourseCard])
-def courses_by_instructor(instructor_id: int, db: Session = Depends(get_db)):
-    courses = _course_query(db).filter(models.Course.instructor_id == instructor_id).all()
-    return [crud.to_course_card(db, c) for c in courses]

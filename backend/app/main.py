@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .database import Base, engine, SessionLocal
+from .database import SessionLocal, ensure_schema
 from .seed import seed
 from .routers import courses, categories, enrollments, reviews, users, assessments
 
-Base.metadata.create_all(bind=engine)
+ensure_schema()
 
 with SessionLocal() as db:
     seed(db)

@@ -18,6 +18,8 @@ class User(Base):
     role = Column(String, nullable=False, default="student")  # student | instructor
     headline = Column(String, default="")
     avatar_emoji = Column(String, default="🙂")
+    email = Column(String, unique=True, index=True, nullable=True)
+    password_hash = Column(String, default="", nullable=False)
 
     courses = relationship("Course", back_populates="instructor")
     enrollments = relationship("Enrollment", back_populates="user")

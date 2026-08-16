@@ -10,9 +10,10 @@ router = APIRouter(prefix="/api/enrollments", tags=["enrollments"])
 @router.post("", response_model=schemas.EnrollmentOut)
 def enroll(payload: schemas.EnrollmentCreate, db: Session = Depends(get_db)):
     """Instant enrollment - no cart, no payment form. Click it, you're in."""
-    course = db.query(models.Course).options(
-        joinedload(models.Course.sections).joinedload(models.Section.lectures)
-    ).get(payload.course_id)
+    course = db.get(
+        models.Course, payload.course_id,
+        options=[joinedload(models.Course.sections).joinedload(models.Section.lectures)],
+    )
     if not course:
         raise HTTPException(404, "Course not found")
 
@@ -55,7 +56,7 @@ def my_learning(user_id: int, db: Session = Depends(get_db)):
 
 @router.put("/lectures/{lecture_id}/progress")
 def set_lecture_progress(lecture_id: int, payload: schemas.ProgressUpdate, db: Session = Depends(get_db)):
-    lecture = db.query(models.Lecture).get(lecture_id)
+    lecture = db.get(models.Lecture, lecture_id)
     if not lecture:
         raise HTTPException(404, "Lecture not found")
 

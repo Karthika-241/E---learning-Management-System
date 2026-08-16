@@ -39,11 +39,25 @@ export function CurrentUserProvider({ children }) {
     return created;
   }, []);
 
+  const login = useCallback(async (email, password) => {
+    const authenticatedUser = await api.login({ email, password });
+    setUsers((prev) => (prev.some((u) => u.id === authenticatedUser.id) ? prev : [...prev, authenticatedUser]));
+    setCurrentUserId(authenticatedUser.id);
+    return authenticatedUser;
+  }, []);
+
+  const signup = useCallback(async (payload) => {
+    const created = await api.signup(payload);
+    setUsers((prev) => [...prev, created]);
+    setCurrentUserId(created.id);
+    return created;
+  }, []);
+
   const currentUser = users.find((u) => u.id === currentUserId) || null;
 
   return (
     <CurrentUserContext.Provider
-      value={{ users, currentUser, currentUserId, switchUser, addUser, loading }}
+      value={{ users, currentUser, currentUserId, switchUser, addUser, login, signup, loading }}
     >
       {children}
     </CurrentUserContext.Provider>

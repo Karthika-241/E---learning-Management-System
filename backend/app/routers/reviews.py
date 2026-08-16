@@ -25,7 +25,7 @@ def add_review(course_id: int, payload: schemas.ReviewCreate, db: Session = Depe
         existing.comment = payload.comment
         db.commit()
         db.refresh(existing)
-        return db.query(models.Review).options(joinedload(models.Review.user)).get(existing.id)
+        return db.get(models.Review, existing.id, options=[joinedload(models.Review.user)])
 
     review = models.Review(
         rating=payload.rating, comment=payload.comment,
@@ -34,4 +34,4 @@ def add_review(course_id: int, payload: schemas.ReviewCreate, db: Session = Depe
     db.add(review)
     db.commit()
     db.refresh(review)
-    return db.query(models.Review).options(joinedload(models.Review.user)).get(review.id)
+    return db.get(models.Review, review.id, options=[joinedload(models.Review.user)])

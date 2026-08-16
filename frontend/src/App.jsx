@@ -13,6 +13,7 @@ import EditCourse from "./pages/EditCourse";
 import Quiz from "./pages/Quiz";
 import Certificate from "./pages/Certificate";
 import BecomeInstructor from "./pages/BecomeInstructor";
+import StudentAuth from "./pages/StudentAuth";
 import { useCurrentUser } from "./context/CurrentUserContext";
 import Spinner from "./components/Spinner";
 
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/certificate/:id" element={<Certificate />} />
           <Route path="/become-instructor" element={<BecomeInstructor />} />
+          <Route path="/student-auth" element={<StudentAuth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
